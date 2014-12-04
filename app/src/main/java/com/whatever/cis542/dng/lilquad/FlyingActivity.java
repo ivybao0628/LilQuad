@@ -70,9 +70,26 @@ public class FlyingActivity extends Activity {
         byte[] buffer = hexStringToByteArray("5555020a130049F8");
         // 85 85 02 10 19 00 73 248
         // 55 55 02 0a 13 00 49 F8
-        connection.bulkTransfer(end, buffer, buffer.length, 1000);
 
-        
+
+        //gains (type=0x67)
+        // kp(int16) kd(int16) kpyaw(int16) kdyaw(int16)
+        // meat: 700 100 300 150
+        // pwm ticks per radian
+        // pwm ticks per radian per second
+
+        // trpy (type=0x70)
+        // thrust(int16) roll(int16) pitch(int16) yaw(int16) currentyaw(int16)
+        // enablemotors(uint8) = 1 or 0, need to disable then enable if quadrotor went >60 degrees
+        // usexternalyaw(unti8) = 0 (unless vicon)
+        //
+        // range thrust = 0-10000(max), Newtons * 10,000
+        // range roll, pitch = 0-10000(roughly 60deg), radians *10,000
+        // range yaw = whatever, radians*10000
+
+        // return trpy (type = char 't')
+
+        connection.bulkTransfer(end, buffer, buffer.length, 1000);
     }
 
 
@@ -92,8 +109,11 @@ public class FlyingActivity extends Activity {
                             connection = manager.openDevice(device);
                             connection.claimInterface(inter, USE_FORCE);
                             byte[] buffer = hexStringToByteArray("5555020a130049F8");
-                            // 85 85 02 10 19 00 73 248
-                            // 55 55 02 0a 13 00 49 F8
+                            // decimal: 85 85 02 10 19 00 73 248
+                            // hex:     55 55 02 0a 13 00 49 F8
+
+
+
                             connection.bulkTransfer(end, buffer, buffer.length, 1000);
                         }
                     }
@@ -114,6 +134,37 @@ public class FlyingActivity extends Activity {
                     + Character.digit(s.charAt(i+1), 16));
         }
         return data;
+    }
+
+    static public int GenerateChecksumCRC16(int bytes[]) {
+
+        int crc = 0xFFFF;
+        int temp;
+        int crc_byte;
+
+        for (int byte_index = 0; byte_index < bytes.length; byte_index++) {
+
+            crc_byte = bytes[byte_index];
+
+            for (int bit_index = 0; bit_index < 8; bit_index++) {
+
+                temp = ((crc >> 15)) ^ ((crc_byte >> 7));
+
+                crc <<= 1;
+                crc &= 0xFFFF;
+
+                if (temp > 0) {
+                    crc ^= 0x1021;
+                    crc &= 0xFFFF;
+                }
+
+                crc_byte <<=1;
+                crc_byte &= 0xFF;
+
+            }
+        }
+
+        return crc;
     }
 
 
