@@ -16,6 +16,7 @@
         />
 
     <Button
+        android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="START"
@@ -23,6 +24,16 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:onClick="onStartButton"
+        />
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="STOP"
+        android:textSize="70dp"
+        android:layout_below="@+id/start"
+        android:layout_centerHorizontal="true"
+        android:onClick="onStopButton"
         />
 
 </RelativeLayout>

@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -89,7 +90,72 @@ public class FlyingActivity extends Activity {
 
         // return trpy (type = char 't')
 
-        connection.bulkTransfer(end, buffer, buffer.length, 1000);
+        short thrust = 1000;
+        short roll = 0;
+        short pitch = 0;
+        short yaw = 0;
+        short currentYaw = 0;
+        byte enableMotors = 1;
+        byte useExternalYaw = 0;
+
+        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
+        byte[] message = new byte[18];
+        message[0] = 0x55;  // starting bytes
+        message[1] = 0x55;
+        message[2] = 12;    // length of data
+        message[3] = 0x70;  // trpy
+        int message_index = 4;
+        for(short var : trpy){
+            message[message_index+1] = (byte)((var >> 8) & 0xff);
+            message[message_index] = (byte)(var & 0xff);
+            message_index+=2;
+        }
+        message[14] = enableMotors;
+        message[15] = useExternalYaw;
+
+        short crc = (short)crc16(Arrays.copyOfRange(message,2,16));
+        message[16] = (byte)(crc & 0xff);
+        message[17] = (byte)((crc >> 8) & 0xff);
+
+        TextView text = (TextView)findViewById(R.id.text);
+        text.setText("message :" +Arrays.toString(message));
+
+        connection.bulkTransfer(end, message, message.length, 1000);
+    }
+
+    public void onStopButton(View view){
+
+        short thrust = 0;
+        short roll = 0;
+        short pitch = 0;
+        short yaw = 0;
+        short currentYaw = 0;
+        byte enableMotors = 0;
+        byte useExternalYaw = 0;
+
+        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
+        byte[] message = new byte[18];
+        message[0] = 0x55;  // starting bytes
+        message[1] = 0x55;
+        message[2] = 12;    // length of data
+        message[3] = 0x70;  // trpy
+        int message_index = 4;
+        for(short var : trpy){
+            message[message_index] = (byte)((var >> 8) & 0xff);
+            message[message_index+1] = (byte)(var & 0xff);
+            message_index+=2;
+        }
+        message[14] = enableMotors;
+        message[15] = useExternalYaw;
+
+        short crc = (short)crc16(Arrays.copyOfRange(message,2,16));
+        message[16] = (byte)(crc & 0xff);
+        message[17] = (byte)((crc >> 8) & 0xff);
+
+        TextView text = (TextView)findViewById(R.id.text);
+        text.setText("message :" + Arrays.toString(message));
+
+        connection.bulkTransfer(end, message, message.length, 1000);
     }
 
 
@@ -108,13 +174,28 @@ public class FlyingActivity extends Activity {
                             end = inter.getEndpoint(ENDPOINT);
                             connection = manager.openDevice(device);
                             connection.claimInterface(inter, USE_FORCE);
-                            byte[] buffer = hexStringToByteArray("5555020a130049F8");
+                            //byte[] buffer = hexStringToByteArray("5555020a130049F8");
                             // decimal: 85 85 02 10 19 00 73 248
                             // hex:     55 55 02 0a 13 00 49 F8
 
 
 
-                            connection.bulkTransfer(end, buffer, buffer.length, 1000);
+
+//                            byte[] buffer = {85,85,02,10,19,00,00,00};
+//                            short crc = (short)crc16(Arrays.copyOfRange(buffer,2,6));
+//                            buffer[6] = (byte)(crc & 0xff);
+//                            buffer[7] = (byte)((crc >> 8) & 0xff);
+//
+//
+//                            byte[] test_buff = {02,10,19,00};
+//                            short test = (short)crc16(test_buff);
+//                            TextView text = (TextView)findViewById(R.id.text);
+//                            text.setText("CRC (hex): " + String.valueOf(buffer[6]) +"\n"+ String.valueOf(buffer[7]));
+
+
+
+
+                            //connection.bulkTransfer(end, buffer, buffer.length, 1000);
                         }
                     }
                     else {
@@ -157,13 +238,27 @@ public class FlyingActivity extends Activity {
                     crc ^= 0x1021;
                     crc &= 0xFFFF;
                 }
-
                 crc_byte <<=1;
                 crc_byte &= 0xFF;
-
             }
         }
+        return crc;
+//        String hex = Integer.toHexString(crc);
+//        hex = hex.substring()
+//        return hex;
+    }
 
+    static int crc16(final byte[] buffer) {
+        int crc = 0xFFFF;
+
+        for (int j = 0; j < buffer.length ; j++) {
+            crc = ((crc  >>> 8) | (crc  << 8) )& 0xffff;
+            crc ^= (buffer[j] & 0xff);//byte to int, trunc sign
+            crc ^= ((crc & 0xff) >> 4);
+            crc ^= (crc << 12) & 0xffff;
+            crc ^= ((crc & 0xFF) << 5) & 0xffff;
+        }
+        crc &= 0xffff;
         return crc;
     }
 
