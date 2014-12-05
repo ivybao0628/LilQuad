@@ -22,9 +22,10 @@
         android:text="START"
         android:textSize="70dp"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
+        android:layout_below="@id/text"
         android:onClick="onStartButton"
         />
+
     <Button
         android:id="@+id/stop"
         android:layout_width="wrap_content"
@@ -34,6 +35,36 @@
         android:layout_below="@+id/start"
         android:layout_centerHorizontal="true"
         android:onClick="onStopButton"
+        />
+
+    <TextView
+        android:id="@+id/thrust_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:text="Thrust Trim"
+        android:textSize="20dp"
+        />
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:text="+"
+        android:textSize="30dp"
+        android:layout_toRightOf="@id/thrust_text"
+        android:layout_marginLeft="30dp"
+        android:layout_alignBaseline="@+id/thrust_text"
+        />
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:text="-"
+        android:textSize="30dp"
+        android:layout_toLeftOf="@id/thrust_text"
+        android:layout_marginRight="30dp"
+        android:layout_alignBaseline="@+id/thrust_text"
         />
 
 </RelativeLayout>
