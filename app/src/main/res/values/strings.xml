@@ -4,5 +4,7 @@
     <string name="app_name">Lil Quad</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <color name="dark">#222222</color>
+    <color name="white">#FFFFFF</color>
 
 </resources>
