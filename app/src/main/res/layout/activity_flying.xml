@@ -52,24 +52,26 @@
         android:textSize="20dp"
         />
 
-    <Button
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:text="+"
-        android:textSize="30dp"
+    <ImageButton
+        android:src="@drawable/plus"
+        android:scaleType="centerCrop"
+        android:background="@null"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_toRightOf="@id/thrust_text"
         android:layout_marginLeft="30dp"
-        android:layout_alignBaseline="@+id/thrust_text"
+        android:layout_alignBottom="@id/thrust_text"
         />
 
-    <Button
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:text="-"
-        android:textSize="30dp"
+    <ImageButton
+        android:src="@drawable/minus"
+        android:scaleType="centerCrop"
+        android:background="@null"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_toLeftOf="@id/thrust_text"
         android:layout_marginRight="30dp"
-        android:layout_alignBaseline="@+id/thrust_text"
+        android:layout_alignBottom="@+id/thrust_text"
         />
 
 </RelativeLayout>
