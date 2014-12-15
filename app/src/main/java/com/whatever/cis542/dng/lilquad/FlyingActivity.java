@@ -59,7 +59,7 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     private float[] rpy = new float[3];
 
     private boolean gotPermission = false;
-    private short current_thrust = 3500;
+    private short current_thrust = 3800;
     private short current_yaw = 0;
     boolean isPressedYawPlus = false;
     boolean isPressedYawMinus = false;
@@ -91,13 +91,13 @@ public class FlyingActivity extends Activity implements SensorEventListener {
             @Override
             public void run() {
                 if(isPressedYawPlus){
-                    current_yaw += 1;
+                    current_yaw += 100;
                 }
                 if(isPressedYawMinus){
-                    current_yaw -= 1;
+                    current_yaw -= 100;
                 }
             }
-        }, 0, 100);
+        }, 0, 30);
         ImageButton buttonYawUp = (ImageButton) findViewById(R.id.yaw_plus);
         buttonYawUp.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -243,10 +243,19 @@ public class FlyingActivity extends Activity implements SensorEventListener {
 //        t.setText("Yaw: " + String.valueOf(rpy[0]) + "\nPitch: " +
 //                String.valueOf(rpy[1]) + "\nRoll: " + String.valueOf(rpy[2]));
 
-        ((TextView)findViewById(R.id.text)).setText("Yaw: " + Short.toString(current_yaw));
+        if (isPressedYawMinus || isPressedYawPlus) {
+            ((TextView)findViewById(R.id.text)).setText("Yaw: " + Short.toString(current_yaw));
+        }
+
+        short current_pitch = (short)(rpy[2]*4000);
+        short current_roll = (short)(-rpy[1]*4000);
+
+        TextView t = (TextView)findViewById(R.id.text);
+        t.setText("Yaw: " + Short.toString(current_yaw) + "\nPitch: " +
+                Short.toString(current_pitch) + "\nRoll: " + Short.toString(current_roll));
 
         if (gotPermission) {
-            sendMessage(current_thrust, (short)0, (short)0, current_yaw, (byte)1);
+            sendMessage(current_thrust, current_roll, current_pitch, (short)-current_yaw, (byte)1);
         }
     }
 
