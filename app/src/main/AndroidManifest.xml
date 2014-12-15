@@ -35,10 +35,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".VerticalSliderActivity"
-            android:label="@string/title_activity_vertical_slider" >
-        </activity>
     </application>
 
 </manifest>
