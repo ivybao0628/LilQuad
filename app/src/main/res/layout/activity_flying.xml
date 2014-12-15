@@ -120,5 +120,21 @@
         android:layout_alignBottom="@+id/thrust_text"
         android:onClick="onThrustDec"
         />
+    <LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="100dip">
+
+        <com.whatever.cis542.dng.lilquad.VerticalProgressBar
+            android:id="@+id/ProgressBar01"
+            android:progressDrawable="@drawable/progress_vertical"
+            android:layout_height="fill_parent" android:layout_width="24dip" android:layout_marginRight="20px"/>
+
+        <com.whatever.cis542.dng.VerticalSeekBar
+            android:id="@+id/SeekBar01"
+            android:progressDrawable="@drawable/progress_vertical"
+            android:thumb="@drawable/seek_thumb"
+            android:layout_height="fill_parent" android:layout_width="26dip"/><com.whatever.cis542.dng.lilquad.VerticalSeekBar
+        android:progressDrawable="@drawable/progress_vertical"
+        android:layout_height="fill_parent" android:id="@+id/SeekBar02" android:thumb="@drawable/seek_thumb_wide" android:layout_width="50dip"/>
+
+    </LinearLayout>
 
 </RelativeLayout>
