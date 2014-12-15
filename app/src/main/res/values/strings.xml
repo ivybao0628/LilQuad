@@ -4,7 +4,12 @@
     <string name="app_name">Lil Quad</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
     <color name="dark">#222222</color>
     <color name="white">#FFFFFF</color>
+
+    <string name="title_activity_opening_screen">Lil Quad</string>
+    <string name="instructions">Here there should be a description of the app along with some instructions on how to use it.
+    Press Start to start Flying!</string>
 
 </resources>

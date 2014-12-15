@@ -6,6 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
@@ -16,14 +20,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 
 
-public class FlyingActivity extends Activity {
+public class FlyingActivity extends Activity implements SensorEventListener {
 
 
     private static final String ACTION_USB_PERMISSION =
@@ -37,9 +45,21 @@ public class FlyingActivity extends Activity {
     private UsbEndpoint end;
     private UsbDeviceConnection connection;
 
+    private SensorManager mSensorManager;
+    private float[] accel_vals = new float[3];
+    private float[] magnet_vals = new float[3];
+    private float[] mRotationM = new float[9];
+    private float[] rpy = new float[3];
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Remove title bar
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        //Remove notification bar
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_flying);
 
         TextView text = (TextView)findViewById(R.id.text);
@@ -57,21 +77,27 @@ public class FlyingActivity extends Activity {
         // assuming that only one usb device is plugged in to the phone
         if (deviceIterator.hasNext()){
             UsbDevice device  = deviceIterator.next();
-
             manager.requestPermission(device, mPermissionIntent);
-
             s += device.toString() + "\n";
             s += "num usbInterfaces: " + String.valueOf(device.getInterfaceCount()) + "\n";
-
             text.setText(s);
         }
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
     }
 
-    public void onStartButton(View view){
-        byte[] buffer = hexStringToByteArray("5555020a130049F8");
+    public void sendMessage(short thrust, short roll, short pitch, short yaw, byte enableMotors){
+
+
+
+
+        short currentYaw = 0;
+        byte useExternalYaw = 0;
+        final byte[] message = new byte[18];
+
+        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
+
         // 85 85 02 10 19 00 73 248
         // 55 55 02 0a 13 00 49 F8
-
 
         //gains (type=0x67)
         // kp(int16) kd(int16) kpyaw(int16) kdyaw(int16)
@@ -89,17 +115,6 @@ public class FlyingActivity extends Activity {
         // range yaw = whatever, radians*10000
 
         // return trpy (type = char 't')
-
-        short thrust = 1000;
-        short roll = 0;
-        short pitch = 0;
-        short yaw = 0;
-        short currentYaw = 0;
-        byte enableMotors = 1;
-        byte useExternalYaw = 0;
-
-        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
-        byte[] message = new byte[18];
         message[0] = 0x55;  // starting bytes
         message[1] = 0x55;
         message[2] = 12;    // length of data
@@ -120,45 +135,97 @@ public class FlyingActivity extends Activity {
         TextView text = (TextView)findViewById(R.id.text);
         text.setText("message :" +Arrays.toString(message));
 
-        connection.bulkTransfer(end, message, message.length, 1000);
+        new Thread(new Runnable() {
+            public void run() {
+                connection.bulkTransfer(end, message, message.length, 1000);
+            }
+        }).start();
+
+    }
+
+    public void onStartButton(View view){
+        sendMessage((short)1000, (short)0, (short)0, (short)0, (byte)1);
     }
 
     public void onStopButton(View view){
-
-        short thrust = 0;
-        short roll = 0;
-        short pitch = 0;
-        short yaw = 0;
-        short currentYaw = 0;
-        byte enableMotors = 0;
-        byte useExternalYaw = 0;
-
-        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
-        byte[] message = new byte[18];
-        message[0] = 0x55;  // starting bytes
-        message[1] = 0x55;
-        message[2] = 12;    // length of data
-        message[3] = 0x70;  // trpy
-        int message_index = 4;
-        for(short var : trpy){
-            message[message_index] = (byte)((var >> 8) & 0xff);
-            message[message_index+1] = (byte)(var & 0xff);
-            message_index+=2;
-        }
-        message[14] = enableMotors;
-        message[15] = useExternalYaw;
-
-        short crc = (short)crc16(Arrays.copyOfRange(message,2,16));
-        message[16] = (byte)(crc & 0xff);
-        message[17] = (byte)((crc >> 8) & 0xff);
-
-        TextView text = (TextView)findViewById(R.id.text);
-        text.setText("message :" + Arrays.toString(message));
-
-        connection.bulkTransfer(end, message, message.length, 1000);
+        sendMessage((short)1000, (short)0, (short)0, (short)0, (byte)1);
+//        short thrust = 0;
+//        short roll = 0;
+//        short pitch = 0;
+//        short yaw = 0;
+//        short currentYaw = 0;
+//        byte enableMotors = 0;
+//        byte useExternalYaw = 0;
+//
+//        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
+//        byte[] message = new byte[18];
+//        message[0] = 0x55;  // starting bytes
+//        message[1] = 0x55;
+//        message[2] = 12;    // length of data
+//        message[3] = 0x70;  // trpy
+//        int message_index = 4;
+//        for(short var : trpy){
+//            message[message_index] = (byte)((var >> 8) & 0xff);
+//            message[message_index+1] = (byte)(var & 0xff);
+//            message_index+=2;
+//        }
+//        message[14] = enableMotors;
+//        message[15] = useExternalYaw;
+//
+//        short crc = (short)crc16(Arrays.copyOfRange(message,2,16));
+//        message[16] = (byte)(crc & 0xff);
+//        message[17] = (byte)((crc >> 8) & 0xff);
+//
+//        TextView text = (TextView)findViewById(R.id.text);
+//        text.setText("message :" + Arrays.toString(message));
+//
+//        connection.bulkTransfer(end, message, message.length, 1000);
     }
 
+    @Override
+    public final void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // nothing
+    }
 
+    @Override
+    public final void onSensorChanged(SensorEvent event) {
+        switch (event.sensor.getType()){
+            case Sensor.TYPE_ACCELEROMETER:
+                System.arraycopy(event.values, 0, accel_vals, 0, 3);
+                break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+                System.arraycopy(event.values, 0, magnet_vals, 0, 3);
+                break;
+            default:
+                return;
+        }
+        if (SensorManager.getRotationMatrix(mRotationM, null, accel_vals,
+                magnet_vals)){
+            SensorManager.getOrientation(mRotationM, rpy);
+        }
+
+        TextView t = (TextView)findViewById(R.id.text);
+        t.setText("Yaw: " + String.valueOf(rpy[0]) + "\nPitch: " +
+                String.valueOf(rpy[1]) + "\nRoll: " + String.valueOf(rpy[2]));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD),
+                SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this,
+                mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_GAME);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
+        sendMessage((short)0, (short)0, (short)0, (short)0, (byte)0);
+    }
 
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
@@ -178,9 +245,6 @@ public class FlyingActivity extends Activity {
                             // decimal: 85 85 02 10 19 00 73 248
                             // hex:     55 55 02 0a 13 00 49 F8
 
-
-
-
 //                            byte[] buffer = {85,85,02,10,19,00,00,00};
 //                            short crc = (short)crc16(Arrays.copyOfRange(buffer,2,6));
 //                            buffer[6] = (byte)(crc & 0xff);
@@ -191,9 +255,6 @@ public class FlyingActivity extends Activity {
 //                            short test = (short)crc16(test_buff);
 //                            TextView text = (TextView)findViewById(R.id.text);
 //                            text.setText("CRC (hex): " + String.valueOf(buffer[6]) +"\n"+ String.valueOf(buffer[7]));
-
-
-
 
                             //connection.bulkTransfer(end, buffer, buffer.length, 1000);
                         }
@@ -207,6 +268,7 @@ public class FlyingActivity extends Activity {
         }
     };
 
+
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];
@@ -218,22 +280,15 @@ public class FlyingActivity extends Activity {
     }
 
     static public int GenerateChecksumCRC16(int bytes[]) {
-
         int crc = 0xFFFF;
         int temp;
         int crc_byte;
-
         for (int byte_index = 0; byte_index < bytes.length; byte_index++) {
-
             crc_byte = bytes[byte_index];
-
             for (int bit_index = 0; bit_index < 8; bit_index++) {
-
                 temp = ((crc >> 15)) ^ ((crc_byte >> 7));
-
                 crc <<= 1;
                 crc &= 0xFFFF;
-
                 if (temp > 0) {
                     crc ^= 0x1021;
                     crc &= 0xFFFF;
@@ -281,7 +336,6 @@ public class FlyingActivity extends Activity {
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 }
