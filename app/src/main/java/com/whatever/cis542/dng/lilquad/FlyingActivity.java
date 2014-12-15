@@ -253,6 +253,32 @@ public class FlyingActivity extends Activity implements SensorEventListener {
         TextView t = (TextView)findViewById(R.id.text);
         t.setText("Yaw: " + Short.toString(current_yaw) + "\nPitch: " +
                 Short.toString(current_pitch) + "\nRoll: " + Short.toString(current_roll));
+        VerticalSeekBar vSeekBar = (VerticalSeekBar)findViewById(R.id.SeekBar02);
+        vSeekBar.setMax(5000);
+       // vSeekBar.setProgress(30);
+        vSeekBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onStopTrackingTouch(VerticalSeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(VerticalSeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onProgressChanged(VerticalSeekBar seekBar, int progress,
+                                          boolean fromUser) {
+//                Log.v("D",String.valueOf(progress));
+//                TextView tview = (TextView)findViewById(R.id.text);
+//                tview.setText("Progress: "+ Integer.toString(progress));
+                current_thrust = (short)(progress*10);
+
+            }
+        });
+
 
         if (gotPermission) {
             sendMessage(current_thrust, current_roll, current_pitch, (short)-current_yaw, (byte)1);

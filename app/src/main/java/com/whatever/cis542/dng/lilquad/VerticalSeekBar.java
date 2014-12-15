@@ -91,6 +91,7 @@ public class VerticalSeekBar extends AbsVerticalSeekBar {
         if (mOnSeekBarChangeListener != null) {
             mOnSeekBarChangeListener.onStartTrackingTouch(this);
         }
+
     }
 
     @Override
