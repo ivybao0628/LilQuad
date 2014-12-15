@@ -6,9 +6,6 @@
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".FlyingActivity"
     android:theme="@android:style/Theme.Holo"
     >
-    <!--android:background="@color/dark"-->
-
-
 
     <TextView
         android:id="@+id/text"
@@ -37,12 +34,57 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="STOP"
-        android:textSize="100dp"
+        android:textSize="80dp"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="100dp"
         android:layout_centerHorizontal="true"
         android:onClick="onStopButton"
         />
+
+
+
+
+    <!-- Yaw buttons -->
+
+    <ImageButton
+        android:id="@+id/yaw_plus"
+        android:src="@drawable/plus"
+        android:scaleType="centerCrop"
+        android:background="@null"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        />
+
+    <ImageButton
+        android:id="@+id/yaw_minus"
+        android:src="@drawable/minus"
+        android:scaleType="centerCrop"
+        android:background="@null"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_toRightOf="@id/stop"
+        android:layout_marginLeft="20dp"
+        android:layout_centerVertical="true"
+        />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/stop"
+        android:layout_above="@id/yaw_plus"
+        android:text="Yaw"
+        android:textSize="20dp"
+        android:gravity="center"/>
+
+
+
+
+
+
+
+
 
     <TextView
         android:id="@+id/thrust_text"
@@ -64,6 +106,7 @@
         android:layout_toRightOf="@id/thrust_text"
         android:layout_marginLeft="30dp"
         android:layout_alignBottom="@id/thrust_text"
+        android:onClick="onThrustInc"
         />
 
     <ImageButton
@@ -75,6 +118,7 @@
         android:layout_toLeftOf="@id/thrust_text"
         android:layout_marginRight="30dp"
         android:layout_alignBottom="@+id/thrust_text"
+        android:onClick="onThrustDec"
         />
 
 </RelativeLayout>

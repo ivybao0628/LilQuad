@@ -15,13 +15,17 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.w3c.dom.Text;
@@ -29,6 +33,10 @@ import org.w3c.dom.Text;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import android.os.Handler;
 
 
 public class FlyingActivity extends Activity implements SensorEventListener {
@@ -39,7 +47,6 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     private static final int INTERFACE = 1;
     private static final int ENDPOINT = 0;
     private static final boolean USE_FORCE = true;
-
     private UsbManager manager;
     private UsbInterface inter;
     private UsbEndpoint end;
@@ -50,6 +57,12 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     private float[] magnet_vals = new float[3];
     private float[] mRotationM = new float[9];
     private float[] rpy = new float[3];
+
+    private boolean gotPermission = false;
+    private short current_thrust = 3500;
+    private short current_yaw = 0;
+    boolean isPressedYawPlus = false;
+    boolean isPressedYawMinus = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +86,53 @@ public class FlyingActivity extends Activity implements SensorEventListener {
         HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
         Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
 
+        final Timer myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(isPressedYawPlus){
+                    current_yaw += 1;
+                }
+                if(isPressedYawMinus){
+                    current_yaw -= 1;
+                }
+            }
+        }, 0, 100);
+        ImageButton buttonYawUp = (ImageButton) findViewById(R.id.yaw_plus);
+        buttonYawUp.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(isPressedYawPlus == false){
+                            isPressedYawPlus = true;
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isPressedYawPlus = false;
+                        break;
+                }
+                return true;
+            }
+        });
+
+        ImageButton buttonYawDown = (ImageButton) findViewById(R.id.yaw_minus);
+        buttonYawDown.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        if(isPressedYawMinus == false){
+                            isPressedYawMinus = true;
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isPressedYawMinus = false;
+                        break;
+                }
+                return true;
+            }
+        });
 
         // assuming that only one usb device is plugged in to the phone
         if (deviceIterator.hasNext()){
@@ -86,10 +146,6 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     }
 
     public void sendMessage(short thrust, short roll, short pitch, short yaw, byte enableMotors){
-
-
-
-
         short currentYaw = 0;
         byte useExternalYaw = 0;
         final byte[] message = new byte[18];
@@ -132,8 +188,8 @@ public class FlyingActivity extends Activity implements SensorEventListener {
         message[16] = (byte)(crc & 0xff);
         message[17] = (byte)((crc >> 8) & 0xff);
 
-        TextView text = (TextView)findViewById(R.id.text);
-        text.setText("message :" +Arrays.toString(message));
+//        TextView text = (TextView)findViewById(R.id.text);
+//        text.setText("message :" +Arrays.toString(message));
 
         new Thread(new Runnable() {
             public void run() {
@@ -143,43 +199,22 @@ public class FlyingActivity extends Activity implements SensorEventListener {
 
     }
 
-    public void onStartButton(View view){
-        sendMessage((short)1000, (short)0, (short)0, (short)0, (byte)1);
-    }
+//    public void onStartButton(View view){
+//        sendMessage((short)1000, (short)0, (short)0, (short)0, (byte)1);
+//    }
 
     public void onStopButton(View view){
-        sendMessage((short)1000, (short)0, (short)0, (short)0, (byte)1);
-//        short thrust = 0;
-//        short roll = 0;
-//        short pitch = 0;
-//        short yaw = 0;
-//        short currentYaw = 0;
-//        byte enableMotors = 0;
-//        byte useExternalYaw = 0;
-//
-//        short[] trpy = {thrust, roll, pitch, yaw, currentYaw};
-//        byte[] message = new byte[18];
-//        message[0] = 0x55;  // starting bytes
-//        message[1] = 0x55;
-//        message[2] = 12;    // length of data
-//        message[3] = 0x70;  // trpy
-//        int message_index = 4;
-//        for(short var : trpy){
-//            message[message_index] = (byte)((var >> 8) & 0xff);
-//            message[message_index+1] = (byte)(var & 0xff);
-//            message_index+=2;
-//        }
-//        message[14] = enableMotors;
-//        message[15] = useExternalYaw;
-//
-//        short crc = (short)crc16(Arrays.copyOfRange(message,2,16));
-//        message[16] = (byte)(crc & 0xff);
-//        message[17] = (byte)((crc >> 8) & 0xff);
-//
-//        TextView text = (TextView)findViewById(R.id.text);
-//        text.setText("message :" + Arrays.toString(message));
-//
-//        connection.bulkTransfer(end, message, message.length, 1000);
+        sendMessage((short)0, (short)0, (short)0, (short)0, (byte)0);
+    }
+
+    public void onThrustInc(View v){
+        current_thrust +=50;
+        ((TextView)findViewById(R.id.text)).setText("Thrust: " + Short.toString(current_thrust));
+    }
+
+    public void onThrustDec(View v){
+        current_thrust -=50;
+        ((TextView)findViewById(R.id.text)).setText("Thrust: " + Short.toString(current_thrust));
     }
 
     @Override
@@ -204,9 +239,15 @@ public class FlyingActivity extends Activity implements SensorEventListener {
             SensorManager.getOrientation(mRotationM, rpy);
         }
 
-        TextView t = (TextView)findViewById(R.id.text);
-        t.setText("Yaw: " + String.valueOf(rpy[0]) + "\nPitch: " +
-                String.valueOf(rpy[1]) + "\nRoll: " + String.valueOf(rpy[2]));
+//        TextView t = (TextView)findViewById(R.id.text);
+//        t.setText("Yaw: " + String.valueOf(rpy[0]) + "\nPitch: " +
+//                String.valueOf(rpy[1]) + "\nRoll: " + String.valueOf(rpy[2]));
+
+        ((TextView)findViewById(R.id.text)).setText("Yaw: " + Short.toString(current_yaw));
+
+        if (gotPermission) {
+            sendMessage(current_thrust, (short)0, (short)0, current_yaw, (byte)1);
+        }
     }
 
     @Override
@@ -224,11 +265,13 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
-        sendMessage((short)0, (short)0, (short)0, (short)0, (byte)0);
+        if(gotPermission) {
+            sendMessage((short)0, (short)0, (short)0, (short)0, (byte)0);
+        }
     }
 
-    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
 
+    private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
@@ -241,23 +284,8 @@ public class FlyingActivity extends Activity implements SensorEventListener {
                             end = inter.getEndpoint(ENDPOINT);
                             connection = manager.openDevice(device);
                             connection.claimInterface(inter, USE_FORCE);
-                            //byte[] buffer = hexStringToByteArray("5555020a130049F8");
-                            // decimal: 85 85 02 10 19 00 73 248
-                            // hex:     55 55 02 0a 13 00 49 F8
-
-//                            byte[] buffer = {85,85,02,10,19,00,00,00};
-//                            short crc = (short)crc16(Arrays.copyOfRange(buffer,2,6));
-//                            buffer[6] = (byte)(crc & 0xff);
-//                            buffer[7] = (byte)((crc >> 8) & 0xff);
-//
-//
-//                            byte[] test_buff = {02,10,19,00};
-//                            short test = (short)crc16(test_buff);
-//                            TextView text = (TextView)findViewById(R.id.text);
-//                            text.setText("CRC (hex): " + String.valueOf(buffer[6]) +"\n"+ String.valueOf(buffer[7]));
-
-                            //connection.bulkTransfer(end, buffer, buffer.length, 1000);
                         }
+                        gotPermission = true;
                     }
                     else {
                         Log.d("PERMISSIONS", "permission denied for device " + device);
@@ -316,7 +344,6 @@ public class FlyingActivity extends Activity implements SensorEventListener {
         crc &= 0xffff;
         return crc;
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
