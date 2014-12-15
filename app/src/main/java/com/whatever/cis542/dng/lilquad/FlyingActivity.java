@@ -59,10 +59,14 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     private float[] rpy = new float[3];
 
     private boolean gotPermission = false;
-    private short current_thrust = 3800;
+    private short current_thrust = 0;
     private short current_yaw = 0;
     boolean isPressedYawPlus = false;
     boolean isPressedYawMinus = false;
+    private short max_thrust = 10000;
+    private short one_rad_roll = 4000;
+    private short one_rad_pitch = 4000;
+    private short yaw_incr = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +95,10 @@ public class FlyingActivity extends Activity implements SensorEventListener {
             @Override
             public void run() {
                 if(isPressedYawPlus){
-                    current_yaw += 100;
+                    current_yaw += yaw_incr;
                 }
                 if(isPressedYawMinus){
-                    current_yaw -= 100;
+                    current_yaw -= yaw_incr;
                 }
             }
         }, 0, 30);
@@ -131,6 +135,26 @@ public class FlyingActivity extends Activity implements SensorEventListener {
                         break;
                 }
                 return true;
+            }
+        });
+
+        VerticalSeekBar vSeekBar = (VerticalSeekBar)findViewById(R.id.SeekBar02);
+        vSeekBar.setMax(max_thrust);
+        vSeekBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onStopTrackingTouch(VerticalSeekBar seekBar) {
+                current_thrust = 0;
+                seekBar.setProgress(0);
+            }
+
+            @Override
+            public void onStartTrackingTouch(VerticalSeekBar seekBar) {
+            }
+
+            @Override
+            public void onProgressChanged(VerticalSeekBar seekBar, int progress,
+                                          boolean fromUser) {
+                current_thrust = (short)(progress);
             }
         });
 
@@ -199,23 +223,22 @@ public class FlyingActivity extends Activity implements SensorEventListener {
 
     }
 
-//    public void onStartButton(View view){
-//        sendMessage((short)1000, (short)0, (short)0, (short)0, (byte)1);
-//    }
-
     public void onStopButton(View view){
+        mSensorManager.unregisterListener(this);
         sendMessage((short)0, (short)0, (short)0, (short)0, (byte)0);
+        Intent intent = new Intent(this, OpeningScreen.class);
+        startActivity(intent);
     }
 
-    public void onThrustInc(View v){
-        current_thrust +=50;
-        ((TextView)findViewById(R.id.text)).setText("Thrust: " + Short.toString(current_thrust));
-    }
-
-    public void onThrustDec(View v){
-        current_thrust -=50;
-        ((TextView)findViewById(R.id.text)).setText("Thrust: " + Short.toString(current_thrust));
-    }
+//    public void onThrustInc(View v){
+//        current_thrust +=50;
+//        ((TextView)findViewById(R.id.text)).setText("Thrust: " + Short.toString(current_thrust));
+//    }
+//
+//    public void onThrustDec(View v){
+//        current_thrust -=50;
+//        ((TextView)findViewById(R.id.text)).setText("Thrust: " + Short.toString(current_thrust));
+//    }
 
     @Override
     public final void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -247,38 +270,13 @@ public class FlyingActivity extends Activity implements SensorEventListener {
             ((TextView)findViewById(R.id.text)).setText("Yaw: " + Short.toString(current_yaw));
         }
 
-        short current_pitch = (short)(rpy[2]*4000);
-        short current_roll = (short)(-rpy[1]*4000);
+        short current_pitch = (short)(rpy[2]*one_rad_pitch);
+        short current_roll = (short)(-rpy[1]*one_rad_roll);
 
         TextView t = (TextView)findViewById(R.id.text);
         t.setText("Yaw: " + Short.toString(current_yaw) + "\nPitch: " +
-                Short.toString(current_pitch) + "\nRoll: " + Short.toString(current_roll));
-        VerticalSeekBar vSeekBar = (VerticalSeekBar)findViewById(R.id.SeekBar02);
-        vSeekBar.setMax(5000);
-       // vSeekBar.setProgress(30);
-        vSeekBar.setOnSeekBarChangeListener(new VerticalSeekBar.OnSeekBarChangeListener() {
-
-            @Override
-            public void onStopTrackingTouch(VerticalSeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStartTrackingTouch(VerticalSeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onProgressChanged(VerticalSeekBar seekBar, int progress,
-                                          boolean fromUser) {
-//                Log.v("D",String.valueOf(progress));
-//                TextView tview = (TextView)findViewById(R.id.text);
-//                tview.setText("Progress: "+ Integer.toString(progress));
-                current_thrust = (short)(progress*10);
-
-            }
-        });
-
+                Short.toString(current_pitch) + "\nRoll: " + Short.toString(current_roll)
+                + "\nThrust: " + Short.toString(current_thrust));
 
         if (gotPermission) {
             sendMessage(current_thrust, current_roll, current_pitch, (short)-current_yaw, (byte)1);

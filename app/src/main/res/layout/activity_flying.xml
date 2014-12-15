@@ -16,19 +16,6 @@
         android:text="hi"
         />
 
-    <!--
-    <Button
-        android:id="@+id/start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="START"
-        android:textSize="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/text"
-        android:onClick="onStartButton"
-        />
-    -->
-
     <Button
         android:id="@+id/stop"
         android:layout_width="wrap_content"
@@ -86,70 +73,53 @@
 
 
 
-    <TextView
-        android:id="@+id/thrust_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:text="Thrust Trim"
-        android:textColor="@color/white"
-        android:textSize="20dp"
-        />
+    <!--<TextView-->
+        <!--android:id="@+id/thrust_text"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:text="Thrust Trim"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:textSize="20dp"-->
+        <!--/>-->
 
-    <ImageButton
-        android:src="@drawable/plus"
-        android:scaleType="centerCrop"
-        android:background="@null"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_toRightOf="@id/thrust_text"
-        android:layout_marginLeft="30dp"
-        android:layout_alignBottom="@id/thrust_text"
-        android:onClick="onThrustInc"
-        android:id="@+id/imageButton2" />
+    <!--<ImageButton-->
+        <!--android:src="@drawable/plus"-->
+        <!--android:scaleType="centerCrop"-->
+        <!--android:background="@null"-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:layout_toRightOf="@id/thrust_text"-->
+        <!--android:layout_marginLeft="30dp"-->
+        <!--android:layout_alignBottom="@id/thrust_text"-->
+        <!--android:onClick="onThrustInc"-->
+        <!--android:id="@+id/imageButton2" />-->
 
-    <ImageButton
-        android:src="@drawable/minus"
-        android:scaleType="centerCrop"
-        android:background="@null"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_toLeftOf="@id/thrust_text"
-        android:layout_marginRight="30dp"
-        android:layout_alignBottom="@+id/thrust_text"
-        android:onClick="onThrustDec"
-        android:id="@+id/imageButton" />
-    <LinearLayout android:id="@+id/LinearLayout01" android:layout_width="wrap_content" android:layout_height="100dip"
-        android:layout_toLeftOf="@+id/imageButton"
-        android:layout_toStartOf="@+id/imageButton"
-        android:layout_above="@+id/thrust_text"
-        android:layout_alignTop="@+id/text"
+    <!--<ImageButton-->
+        <!--android:src="@drawable/minus"-->
+        <!--android:scaleType="centerCrop"-->
+        <!--android:background="@null"-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="50dp"-->
+        <!--android:layout_toLeftOf="@id/thrust_text"-->
+        <!--android:layout_marginRight="30dp"-->
+        <!--android:layout_alignBottom="@+id/thrust_text"-->
+        <!--android:onClick="onThrustDec"-->
+        <!--android:id="@+id/imageButton" />-->
+
+
+
+    <com.whatever.cis542.dng.lilquad.VerticalSeekBar
+        android:id="@+id/SeekBar02"
+        android:progressDrawable="@drawable/progress_vertical"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_marginLeft="20dp"
+        android:layout_height="fill_parent"
+        android:thumb="@drawable/seek_thumb_wide"
+        android:layout_width="50dp"/>
 
-        <!--<com.whatever.cis542.dng.lilquad.VerticalProgressBar-->
-            <!--android:id="@+id/ProgressBar01"-->
-            <!--android:progressDrawable="@drawable/progress_vertical"-->
-            <!--android:layout_height="fill_parent"-->
-            <!--android:layout_width="24dip"-->
-            <!--android:layout_marginRight="20px"/>-->
 
-        <!--<com.whatever.cis542.dng.lilquad.VerticalSeekBar-->
-            <!--android:id="@+id/SeekBar01"-->
-            <!--android:progressDrawable="@drawable/progress_vertical"-->
-            <!--android:thumb="@drawable/seek_thumb"-->
-            <!--android:layout_height="fill_parent"-->
-            <!--android:layout_width="26dip"/>-->
-
-        <com.whatever.cis542.dng.lilquad.VerticalSeekBar
-            android:progressDrawable="@drawable/progress_vertical"
-            android:layout_height="fill_parent"
-            android:id="@+id/SeekBar02"
-            android:thumb="@drawable/seek_thumb_wide"
-            android:layout_width="50dp"/>
-
-    </LinearLayout>
 
 
 </RelativeLayout>
