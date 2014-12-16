@@ -9,8 +9,16 @@
     <color name="white">#FFFFFF</color>
 
     <string name="title_activity_opening_screen">Lil Quad</string>
-    <string name="instructions">Here there should be a description of the app along with some instructions on how to use it.
-    Press Start to start Flying!</string>
+    <string name="instructions">Welcome to Lil Quad, the app that lets you fly a quadrotor!
+        \nThe app uses USB communication to send messages to the radio transmitter, which wirelessly
+        \ntransmits data to the quadrotor itself.
+        \n
+        \nHere are the basic controls:
+        \n- The bar on the left controls the thrust of the quadrotor
+        \n- The pitch and the roll of the phone intuitively control the pitch and roll of the quadrotor
+        \n- The buttons on the right will modulate the yaw of the quadrotor
+        \n
+        \nPress Start to start Flying!</string>
     <string name="title_activity_vertical_slider">VerticalSliderActivity</string>
 
 </resources>
