@@ -66,6 +66,8 @@ public class FlyingActivity extends Activity implements SensorEventListener {
     private short max_thrust = 10000;
     private short one_rad_roll = 4000;
     private short one_rad_pitch = 4000;
+    private short roll_offset = 1500;
+    private short pitch_offset = -1500;
     private short yaw_incr = 200;
 
     @Override
@@ -262,16 +264,12 @@ public class FlyingActivity extends Activity implements SensorEventListener {
             SensorManager.getOrientation(mRotationM, rpy);
         }
 
-//        TextView t = (TextView)findViewById(R.id.text);
-//        t.setText("Yaw: " + String.valueOf(rpy[0]) + "\nPitch: " +
-//                String.valueOf(rpy[1]) + "\nRoll: " + String.valueOf(rpy[2]));
-
         if (isPressedYawMinus || isPressedYawPlus) {
             ((TextView)findViewById(R.id.text)).setText("Yaw: " + Short.toString(current_yaw));
         }
 
-        short current_pitch = (short)(rpy[2]*one_rad_pitch);
-        short current_roll = (short)(-rpy[1]*one_rad_roll);
+        short current_pitch = (short)(rpy[2]*one_rad_pitch + pitch_offset);
+        short current_roll = (short)(-rpy[1]*one_rad_roll + roll_offset);
 
         TextView t = (TextView)findViewById(R.id.text);
         t.setText("Yaw: " + Short.toString(current_yaw) + "\nPitch: " +
